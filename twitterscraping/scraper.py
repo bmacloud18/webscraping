@@ -45,7 +45,7 @@ sources = {
 
 ### Data Collection ###
 # Search query template
-query = 'joe biden'
+query = 'Palestine'
 
 # Store results ("trump" OR "Trump" OR "Ukraine" OR "Russia" OR "economy" OR "vote" OR "election")
 data = []
@@ -89,7 +89,7 @@ for result in results.get("organic_results", []):
     i = 0
 
     for element in elements:
-        if (element != "note found" and element != ""):
+        if (element != "note found" and len(element) > 3):
             response = requests.post(
                 "https://api.sapling.ai/api/v1/tone",
                 json={
