@@ -116,11 +116,12 @@ for result in results.get("organic_results", []):
 df = pd.DataFrame(data, columns=["Title", "Year", "URL", "Tweet1", "Temp1", "Tone1", "Tweet2", "Temp2", "Tone2", "Note", "NoteTemp", "NoteTone"])
 
 # Count word frequencies
-word_counts = Counter(np.concatenate([df['Tone1'].dropna().to_numpy(), df['Tone2'].dropna().to_numpy()]))
-print(word_counts.keys())
+tweet_word_counts = Counter(np.concatenate([df['Tone1'].dropna().to_numpy(), df['Tone2'].dropna().to_numpy()]))
+note_word_counts = Counter(df['NoteTone'].dropna().to_numpy())
 
 # create graph labels
-labels = list(word_counts.keys())
+tweet_labels = list(tweet_word_counts.keys())
+note_labels = list(note_word_counts.keys())
 # List of all possible tones
 # labels = list([
 #     "admiring",
@@ -155,19 +156,30 @@ labels = list(word_counts.keys())
 # )
 
 # get graph values (integers)
-values = list(word_counts.values()) # Corresponding counts
-
+tweet_values = list(tweet_word_counts.values()) # Corresponding counts
+note_values = list(note_word_counts.values())
 # Create bar graph
 plt.figure(figsize=(8, 5))
-plt.bar(labels, values, color='skyblue')
+plt.bar(tweet_labels, tweet_values, color='skyblue')
 
 # Add labels and title
 plt.xlabel("Tones")
 plt.ylabel("Frequency")
-plt.title("Word Frequency Bar Chart")
+plt.title("Tone Frequency Bar Chart")
 
 # Show values on top of bars
-for i, v in enumerate(values):
+for i, v in enumerate(tweet_values):
+    plt.text(i, v + 0.1, str(v), ha='center', fontsize=12)
+
+# Save the plot as a PNG file
+plt.savefig(f"./files/bar/{query}_tweettone_frequency_bar.png", format="png")
+
+# repeat for note tone graph
+plt.figure(figsize=(8, 5))
+plt.bar(note_labels, note_values, color='skyblue')
+
+# Show values on top of bars
+for i, v in enumerate(note_values):
     plt.text(i, v + 0.1, str(v), ha='center', fontsize=12)
 
 # Save the plot as a PNG file
