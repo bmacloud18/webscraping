@@ -107,13 +107,13 @@ for result in results.get("organic_results", []):
     
 
 
-    data.append([title, "2023", link, elements[0], responses[0], responses[1], elements[1], responses[2], responses[3], elements[2], responses[4], responses[5]])
+    data.append([query, title, "2023", link, elements[0], responses[0], responses[1], elements[1], responses[2], responses[3], elements[2], responses[4], responses[5]])
 
 
 ### Data Processing/Analysis ###
 
 # Convert to DataFrame
-df = pd.DataFrame(data, columns=["Title", "Year", "URL", "Tweet1", "Temp1", "Tone1", "Tweet2", "Temp2", "Tone2", "Note", "NoteTemp", "NoteTone"])
+df = pd.DataFrame(data, columns=[f"{query}", "Title", "Year", "URL", "Tweet1", "Temp1", "Tone1", "Tweet2", "Temp2", "Tone2", "Note", "NoteTemp", "NoteTone"])
 
 # Count word frequencies
 tweet_word_counts = Counter(np.concatenate([df['Tone1'].dropna().to_numpy(), df['Tone2'].dropna().to_numpy()]))
