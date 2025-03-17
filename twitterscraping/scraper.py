@@ -32,18 +32,18 @@ if not SERP_API_KEY:
 # Set up Selenium WebDriver (make sure to have ChromeDriver installed)
 driver = webdriver.Chrome()
 # List of OSINT organizations and sources
-sources = {
-    "Bellingcat": "site:bellingcat.com",
-    "DFRLab (Atlantic Council)": "site:atlanticcouncil.org",
-    "EU DisinfoLab": "site:disinfo.eu",
-    "Graphika": "site:graphika.com",
-    "NATO StratCom COE": "site:stratcomcoe.org",
-    "RAND Corporation": "site:rand.org",
-    "BBC Monitoring": "site:bbc.com/news",
-    "OSINT Foundation": "site:osintfoundation.com",
-    "Oxford Internet Institute": "site:oii.ox.ac.uk",
-    "Global Engagement Center (US Gov)": "site:state.gov/gec"
-}
+# sources = {
+#     "Bellingcat": "site:bellingcat.com",
+#     "DFRLab (Atlantic Council)": "site:atlanticcouncil.org",
+#     "EU DisinfoLab": "site:disinfo.eu",
+#     "Graphika": "site:graphika.com",
+#     "NATO StratCom COE": "site:stratcomcoe.org",
+#     "RAND Corporation": "site:rand.org",
+#     "BBC Monitoring": "site:bbc.com/news",
+#     "OSINT Foundation": "site:osintfoundation.com",
+#     "Oxford Internet Institute": "site:oii.ox.ac.uk",
+#     "Global Engagement Center (US Gov)": "site:state.gov/gec"
+# }
 
 ### Data Collection ###
 # Search query template
@@ -55,7 +55,7 @@ params = {
         "q": f'site:twitter.com inurl:/status/ -inurl:/HelpfulNotes/ "Readers added context" {query} after:{YEAR}-01-01 before:{YEAR}-12-31',
         "api_key": SERP_API_KEY,
         "engine": "google",
-        "num": 2  # Get top 10 results per source
+        "num": 10  # Get top 10 results per source
     }
 search = GoogleSearch(params)
 results = search.get_dict()
@@ -178,7 +178,7 @@ plt.savefig(f"./files/bar/{query}_tweettone_frequency_bar_{YEAR}.png", format="p
 
 # repeat for note tone graph
 plt.figure(figsize=(8, 5))
-plt.bar(note_labels, note_values, color='skyblue')
+plt.bar(note_labels, note_values, color='red')
 
 # Show values on top of bars
 for i, v in enumerate(note_values):
