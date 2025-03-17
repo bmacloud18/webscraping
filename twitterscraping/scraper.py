@@ -24,6 +24,8 @@ load_dotenv()
 SERP_API_KEY = os.getenv("SERP_API_KEY")
 TONE_API_KEY = os.getenv("TONE_API_KEY")
 
+YEAR = 2024
+
 # Check if the API key is loaded
 if not SERP_API_KEY:
     raise ValueError("⚠ ERROR: API Key not found. Make sure it's in the .env file!")
@@ -50,7 +52,7 @@ query = 'Palestine'
 # Store results ("trump" OR "Trump" OR "Ukraine" OR "Russia" OR "economy" OR "vote" OR "election")
 data = []
 params = {
-        "q": f'site:twitter.com inurl:/status/ -inurl:/HelpfulNotes/ "Readers added context" {query} after:2023-01-01 before:2023-12-31',
+        "q": f'site:twitter.com inurl:/status/ -inurl:/HelpfulNotes/ "Readers added context" {query} after:{YEAR}-01-01 before:{YEAR}-12-31',
         "api_key": SERP_API_KEY,
         "engine": "google",
         "num": 2  # Get top 10 results per source
@@ -107,7 +109,7 @@ for result in results.get("organic_results", []):
     
 
 
-    data.append([query, title, "2023", link, elements[0], responses[0], responses[1], elements[1], responses[2], responses[3], elements[2], responses[4], responses[5]])
+    data.append([query, title, YEAR, link, elements[0], responses[0], responses[1], elements[1], responses[2], responses[3], elements[2], responses[4], responses[5]])
 
 
 ### Data Processing/Analysis ###
@@ -172,7 +174,7 @@ for i, v in enumerate(tweet_values):
     plt.text(i, v + 0.1, str(v), ha='center', fontsize=12)
 
 # Save the plot as a PNG file
-plt.savefig(f"./files/bar/{query}_tweettone_frequency_bar.png", format="png")
+plt.savefig(f"./files/bar/{query}_tweettone_frequency_bar_{YEAR}.png", format="png")
 
 # repeat for note tone graph
 plt.figure(figsize=(8, 5))
@@ -183,7 +185,7 @@ for i, v in enumerate(note_values):
     plt.text(i, v + 0.1, str(v), ha='center', fontsize=12)
 
 # Save the plot as a PNG file
-plt.savefig(f"./files/bar/{query}_notetone_frequency_bar.png", format="png")
+plt.savefig(f"./files/bar/{query}_notetone_frequency_bar_{YEAR}.png", format="png")
 
 
 # Create Wordclouds if necessary
@@ -205,8 +207,8 @@ plt.savefig(f"./files/bar/{query}_notetone_frequency_bar.png", format="png")
 # tweet_wordcloud.to_file(f"./files/wordcloud/{query}_notetone_wordcloud.png")
 
 ### Save Data ### 
-df.to_csv(f"./files/csv/{query}_osint_reports_2023.csv", index=False)
-df.to_excel(f"./files/excel/{query}_osint_reports_2023.xlsx", index=False)
+df.to_csv(f"./files/csv/{query}_osint_reports_{YEAR}.csv", index=False)
+df.to_excel(f"./files/excel/{query}_osint_reports_{YEAR}.xlsx", index=False)
 
 print("✅ OSINT reports saved to files folder")
 

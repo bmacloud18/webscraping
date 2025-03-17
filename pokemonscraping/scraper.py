@@ -25,6 +25,10 @@ ZIP = os.getenv("ZIP")
 COUNTRY = os.getenv("COUNTRY")
 PHONE_NUM = os.getenv("PHONE_NUM")
 EMAIL = os.getenv("EMAIL")
+CARD_NUM = os.getenv("CARD_NUM")
+CVV2 = os.getenv("CVV2")
+MONTH = os.getenv("MONTH")
+YEAR = os.getenv("YEAR")
 
 
 link = "https://www.pokemoncenter.com/product/100-10356/pokemon-tcg-scarlet-and-violet-journey-together-pokemon-center-elite-trainer-box"
@@ -32,18 +36,31 @@ link = "https://www.pokemoncenter.com/product/100-10356/pokemon-tcg-scarlet-and-
 add_class = "add-to-cart-button--PZmQF"
 
 shipping_details = [
-    ["first_id", "shipping-givenName"],
-    ["last_id", "shipping-familyName"],
-    ["address_id", "shipping-streetAddress"],
-    ["city_id", "shipping-locality"],
-    ["state_id", "shipping-region"],
-    ["zip_id", "shipping-postalCode"],
-    ["country_id", "shipping-countryName"],
-    ["phone_id", "shipping-phoneNumber"],
-    ["email_id", "shipping-email"]
-    ]
-    
-billing_id =  "billing-selector"
+    [FIRST_NAME, "shipping-givenName"],
+    [LAST_NAME, "shipping-familyName"],
+    [ADDRESS, "shipping-streetAddress"],
+    [CITY, "shipping-locality"],
+    [ZIP, "shipping-postalCode"],
+    [COUNTRY, "shipping-countryName"],
+    [PHONE_NUM, "shipping-phoneNumber"],
+    [EMAIL, "shipping-email"]
+]
+
+shipping_dropdowns = [
+    [STATE, "shipping-region"]
+]
+payment_dropdown = [
+    ["Credit/Debit Card", "billing-selector"]
+]
+card_details = [
+    [CARD_NUM, "number"],
+    [CVV2, "securityCode"]
+]
+card_dropdowns = [
+    [MONTH, "expiryMonth"],
+    [YEAR, "expiryYear"]
+]
+
 
 
 continue_class = "btn--ICBoB"
@@ -55,14 +72,15 @@ driver = webdriver.Chrome()
 
 driver.get(link)
 
-
-dropdown = Select(driver.find_element(By.ID, f"{state_id}"))
-dropdown.select_by_visible_text(f"{STATE}")  # Replace with actual option text
-
-
-dropdown = Select(driver.find_element(By.ID, f"{billing_id}"))
-dropdown.select_by_visible_text("Credit/Debit Card")  # Replace with actual option text
-
+def iterate_dropdowns(dropdown_list):
+    for element in dropdown_list:
+        try:
+            dropdown = Select(WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.ID, f"{element[1]}")) # option id
+            ))
+            dropdown.select_by_visible_text(f"{element[0]}")  # option text
+        except:
+            print("error occurred iterating dropdowns")
 try:
     button = WebDriverWait(driver, 20).until(
         EC.element_to_be_clickable((By.CLASS_NAME, f"{add_class}"))
@@ -73,7 +91,7 @@ except:
 
 try:
     WebDriverWait(driver, 20).until(
-        dropdown = Select(EC.presence_of_all_elements_located((By.ID, f"{billing_id}")))
+        dropdown = Select(EC.presence_of_element_located((By.ID, f"{billing_id}")))
     )
 except:
     print("billing not available")
