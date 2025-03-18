@@ -1,6 +1,7 @@
 ### Environment Setup ###
 
 import os
+import time
 import pandas as pd
 import requests
 from serpapi import GoogleSearch
@@ -30,9 +31,15 @@ YEAR = 2024
 if not SERP_API_KEY:
     raise ValueError("⚠ ERROR: API Key not found. Make sure it's in the .env file!")
 # Set up Selenium WebDriver (make sure to have ChromeDriver installed)
-driver = webdriver.Chrome()
+options = webdriver.ChromeOptions()
+options.headless = False  # Disable headless mode for debugging
+
+options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+options.add_argument("--incognito")
+
+driver = webdriver.Chrome(options=options)
 # List of OSINT organizations and sources
-query_list = ["immigration", "Trump", "DEI", "Russia", "border", "Ukraine", "election" "asylum", "Palestine", "police"]
+query_list = ["Trump", "DEI", "Russia", "border", "Ukraine", "immigration", "election", "asylum", "Palestine", "police"]
 
 all_data = []
 
@@ -46,7 +53,7 @@ for query in query_list:
             "q": f'site:twitter.com inurl:/status/ -inurl:/HelpfulNotes/ "Readers added context" {query} after:{YEAR}-01-01 before:{YEAR}-12-31',
             "api_key": SERP_API_KEY,
             "engine": "google",
-            "num": 10  # Get top 10 results per source
+            "num": 100  # Get top 10 results per source
         }
     search = GoogleSearch(params)
     results = search.get_dict()
@@ -82,19 +89,35 @@ for query in query_list:
         i = 0
 
         for element in elements:
-            if (element != "note found" and len(element) > 3):
-                response = requests.post(
-                    "https://api.sapling.ai/api/v1/tone",
-                    json={
-                        "key": f"{TONE_API_KEY}",
-                        "text": f"{element}"
-                    }
-                )
+            filtered_element = " ".join(word for word in element.split() if ".com" not in word)
+            if (element != "note found" and len(filtered_element) > 3):
+                filtered_element = " ".join(word for word in element.split() if ".com" not in word)
 
-                if (response.json and response.json()["overall"]):
-                    responses[i] = response.json()["overall"][0][0]
-                    responses[i+1] = response.json()["overall"][0][1]
-                i = i + 2
+                try:
+                    response = requests.post(
+                        "https://api.sapling.ai/api/v1/tone",
+                        json={
+                            "key": f"{TONE_API_KEY}",
+                            "text": f"{filtered_element}"
+                        }
+                    )
+                except Exception as e:
+                    print(f'tone api error - {e}')
+                    time.sleep(2 * 60)
+
+                try:
+                    if (response, response.json()):
+                        if (len(response.json()["overall"]) < 1):
+                            print(link, filtered_element, response, response.json())
+                        responses[i] = response.json()["overall"][0][0]
+                        responses[i+1] = response.json()["overall"][0][1]
+                    i = i + 2
+                except Exception as e:
+                    print(f'error accessing response - {e}')
+                    print(response, response.json())
+                    if response.json()['msg'] == 'Rate Limited. Visit https://sapling.ai/docs/api/api-access for details.':
+                        time.sleep(2 * 60)
+
 
 
         
@@ -201,6 +224,8 @@ for query in query_list:
     ### Save Data ### 
     df.to_csv(f"./files/csv/{query}_osint_reports_{YEAR}.csv", index=False)
     df.to_excel(f"./files/excel/{query}_osint_reports_{YEAR}.xlsx", index=False)
+
+    driver.delete_all_cookies()
 
 full_df = pd.DataFrame(all_data, columns=["Query", "Title", "Year", "URL", "Tweet1", "Temp1", "Tone1", "Tweet2", "Temp2", "Tone2", "Note", "NoteTemp", "NoteTone"])
 # Count word frequencies
